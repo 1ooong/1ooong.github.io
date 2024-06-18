@@ -1,0 +1,1 @@
+{"routes":[{"src":"/(.*)","dest":"/$1","headers":{"www-authenticate":"Basic realm=\"Protected Area\""}}]}
