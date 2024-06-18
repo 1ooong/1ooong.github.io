@@ -1,16 +1,17 @@
+const basicAuth = require('basic-auth');
+
+const USER = process.env.BASIC_AUTH_USER;
+const PASS = process.env.BASIC_AUTH_PASS;
+
 module.exports = (req, res) => {
-  const auth = { login: process.env.BASIC_AUTH_USER, password: process.env.BASIC_AUTH_PASS };
+  const user = basicAuth(req);
 
-  // Parse login and password from headers
-  const b64auth = (req.headers.authorization || '').split(' ')[1] || '';
-  const [login, password] = Buffer.from(b64auth, 'base64').toString().split(':');
-
-  // Verify login and password
-  if (login && password && login === auth.login && password === auth.password) {
-    return res.status(200).send('Access granted');
+  if (!user || user.name !== USER || user.pass !== PASS) {
+    res.setHeader('WWW-Authenticate', 'Basic realm="Protected Area"');
+    res.statusCode = 401;
+    res.end('Access denied');
+  } else {
+    res.setHeader('Content-Type', 'text/html');
+    res.end('Access granted');
   }
-
-  // Access denied
-  res.setHeader('WWW-Authenticate', 'Basic realm="401"');
-  res.status(401).send('Authentication required.');
 };
